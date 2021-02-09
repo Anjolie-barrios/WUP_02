@@ -1,7 +1,7 @@
 ---
 title: "Cabbages"
-author: "Put your name here!"
-date: "put the date here"
+author: "Anjolie Barrios"
+date: "Feb 8, 2021"
 output:
   html_document:
     df_print: paged
@@ -11,39 +11,88 @@ output:
 require(tidyverse)
 require(tigerstats)
 require(MASS)
-veggy <- cabbages
+library(dplyr)
+veggy <- cabbages %>%
+  mutate(vitC_density = VitC / HeadWt)
 ```
 
 # Introduction
-
 <!--In this section you explain what you are trying to show.  Where did the data come from?  What is the research or other question you are trying to answer?!-->
  The cabbages data from the MASS package is loaded into a dataframe called veggy. Complete this report by answering the following two questions  
- 
+This data comes from tests of cabbages with c39 and c52 cultivation methods; using this data, we'll find out which, if any, cultivation method is better.  
+  
 ### Is there a difference in average VitC between c39 and c52 cultivation methods?  
-
-# Methods
-
+  
+$H_0$: There is no difference in average VitC between c39 and c52 cultivation methods.  
+  
+$H_A$: There is a difference in average VitC between c39 and c52 cultivation methods.  
+  
+# Methods  
 <!--Decide on your methods:  use "variable analysis" or other appropriate descriptors.  Make sure to choose at least one graphical method and at least one numerical method.!-->
+Since cultivation is categorical and VitC is numerical, a Num~Cat variable analysis will be used.  
+A boxplot will be the graphical method. A t- test and summary will be the numerical methods.  
 
-# Results
+# Results  
 
 <!--Divide this section into two sub-sections:  One for your descriptive  results and one for your inferential results.!-->
 
-## Descriptive Results
+## Descriptive Results  
 
-### Graphical Descriptive Results
-
+### Graphical Descriptive Results  
+```{r}
+plot(VitC~Cult,data=veggy) %>%
+  abline(h = 51.5, lwd = 2, col = "red") %>%
+  abline(h = 64.4, lwd = 2, col = "blue") %>%
+  title(main = "Vitamin C content vs Cultivation method") %>%
+  title(xlab="Cultivation Method", mgp=c(2,1,0)) %>%
+  title(ylab="Vitamin C levels", mgp=c(2,1,0))
+```
+  
+The red line is the average VitC content of c39 cultivation (51.5), and the blue line is that of c52 cultivation (64.4). Units are unknown.  
+  
+```{r}
+plot(vitC_density~Cult,data=veggy) %>%
+  abline(h = 19.66936, lwd = 2, col = "red") %>%
+  abline(h = 33.02514, lwd = 2, col = "blue") %>%
+  title(main = "Vitamin C Density") %>%
+  title(xlab="Cultivation Method", mgp=c(2,1,0)) %>%
+  title(ylab="Vitamin C density", mgp=c(2,1,0))
+```
+  
+Density was calculated by dividing the Vitamin C content by weight. Units are unknown.  
+The red line is the average VitC density of c39 cultivation (19.66936), and the blue line is that of c52 cultivation (33.02514). A greater disparity in VitC content (both between and within each category of cultivation) is found when density is taken into account, but c52 cultivation beats c39 either way. 
 <!--Graphical results here.  Make sure to show your code.  Provide appropriate labels for axes, giving units if possible, and provide a good title for the graph, too.  Use the graphical results to describe the patterns if any that exist in the data as focused toward the research question!-->
 
-### Numerical Descriptive Results
-
+### Numerical Descriptive Results  
 <!--Numerical results go here. Use the numerical results to describe the patterns if any that exist in the data as focused toward the research question!-->
+```{r}
+favstats(VitC~Cult,data=veggy)
+```
+  
+64.4 > 51.5, which proves c52 yields more VitC per cabbage head on average. 
+  
+```{r}
+favstats(vitC_density~Cult,data=veggy)
+```
+  
+33.0251 > 19.6694, which proves c52 yields more VitC per weight on average. The greater disparity in averages can be explained thus:  
+```{r}
+favstats(HeadWt~Cult,data=veggy)
+```
+  
+On average, c39 cabbages are heavier, so their VitC content is spread over a greater weight or mass.  
 
-## Inferential Results
-
+## Inferential Results  
 <!--State hypothesis clearly.  Make sure your discussion of the inferential test covers all the aspects that the test output produces, such as test statistic, p-value etc.  Make a decision about the null hypothesis, explain the assumptions on which the selected test/procedure was based, and why the chosen procedure satisfys the assumptions and is appropriate to answer the research question!-->
+The alternate hypothesis is that there is a difference in average VitC between c39 and c52 cultivation methods; the null hypothesis is that there is NO difference in average VitC between c39 and c52 cultivation methods.  
+The following parametric t- test was chosen because the data fulfilled two assumptions: the VitC variable has similar variances (50.7414 and 71.4897) in both groups, and they're interpretted in a ratio scale (with an absolute zero and able to be used to make meaningful ratios). The data isn't normally distributed or big enough to represent an entire population, though.  
+The variable "vitC_density" was not used in tests because its variances (~70 and ~216 respectively) are too far apart.  
+```{r}
+t.test(VitC~Cult,data=veggy)
+```
+  
+If the null hypothesis was true, there would be a 0.00000003 probability of these results happening. That's less than 0.05, so the null hypothesis is probably false. 
 
-
-# Discussion and Conclusion
+# Discussion and Conclusion  
 
 <!--Discussion and conclusion here.  If you found a relationship be sure to consider whether the relationship occurs because one of the variavbles causes the other, or whether they perhasps are related for some other reason.  Watch the chapter 6 videos from the GeorgeTown videos collection.!-->
