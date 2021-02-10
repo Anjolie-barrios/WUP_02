@@ -13,7 +13,9 @@ require(tigerstats)
 require(MASS)
 library(dplyr)
 veggy <- cabbages %>%
-  mutate(vitC_density = VitC / HeadWt)
+  mutate(vitC_density = VitC / HeadWt) 
+  c39 <- subset(veggy,Cult=="c39") 
+  c52 <- subset(veggy,Cult=="c52")
 ```
 
 # Introduction
@@ -60,7 +62,14 @@ plot(vitC_density~Cult,data=veggy) %>%
 ```
   
 Density was calculated by dividing the Vitamin C content by weight. Units are unknown.  
-The red line is the average VitC density of c39 cultivation (19.66936), and the blue line is that of c52 cultivation (33.02514). A greater disparity in VitC content (both between and within each category of cultivation) is found when density is taken into account, but c52 cultivation beats c39 either way. 
+The red line is the average VitC density of c39 cultivation (19.66936), and the blue line is that of c52 cultivation (33.02514). A greater disparity in VitC content (both between and within each category of cultivation) is found when density is taken into account, but c52 cultivation beats c39 either way.  
+```{r}
+model.1 <- lm(VitC ~ HeadWt, data = veggy)
+data1 <- ggplot(veggy,aes(y=VitC,x=HeadWt))
+data1 + geom_point() + geom_smooth(method = lm)
+```
+  
+As seen in this graph, head weight and VitC content are negatively correlated. However, it is unknown at this point whether more VitC content is a direct result of the cultivation method or whether, regardless of cultivation, VitC is less common in heavier cabbages.  
 <!--Graphical results here.  Make sure to show your code.  Provide appropriate labels for axes, giving units if possible, and provide a good title for the graph, too.  Use the graphical results to describe the patterns if any that exist in the data as focused toward the research question!-->
 
 ### Numerical Descriptive Results  
@@ -91,8 +100,23 @@ The variable "vitC_density" was not used in tests because its variances (~70 and
 t.test(VitC~Cult,data=veggy)
 ```
   
-If the null hypothesis was true, there would be a 0.00000003 probability of these results happening. That's less than 0.05, so the null hypothesis is probably false. 
+If the null hypothesis was true, there would be a 0.00000003405 probability of these results happening. That's less than 0.05, so the null hypothesis is probably false. 
+
+##HeadWt vs VitC content
+
+```{r}
+model.c39 <- lm(VitC ~ HeadWt, data = c39)
+summary.lm(model.c39)
+```
+
+```{r}
+model.c52 <- lm(VitC ~ HeadWt, data = c52)
+summary.lm(model.c52)
+```
+  
+The slope for the line of regression is -4.526 for c39; it's -6.647 for c52, so HeadWt and VitC are more negatively correlated in c52 cabbages.  
 
 # Discussion and Conclusion  
-
+While the lack of units limits the usefulness of this data, it can be assumed that (in cabbage), on average, c52 cultivation yields more Vitamin C than c39 cultivation.  
+However, it is unknown whether more VitC content is a direct result of the cultivation method or whether, regardless of cultivation, growing bigger cabbages results in less VitC content. If growing bigger cabbages is an inherent part of c39, then it's unknown whether the effect is direct or indirect (as a result of the cabbages being bigger).  If not, results are still inconclusive on the cause of c52 cabbages having more VitC. 
 <!--Discussion and conclusion here.  If you found a relationship be sure to consider whether the relationship occurs because one of the variavbles causes the other, or whether they perhasps are related for some other reason.  Watch the chapter 6 videos from the GeorgeTown videos collection.!-->
